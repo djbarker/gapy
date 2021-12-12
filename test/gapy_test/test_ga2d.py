@@ -92,7 +92,7 @@ class Test2D(unittest.TestCase):
 
         x = vec(2, 0)
         y = vec(0, 3)
-        B = y*x  # not unit, rotor should handle that!
+        B = x*y  # not unit, rotor should handle that!
         a = vec(0.5, 0.5)
 
         self.assertEqual(a.rotate_deg( 360,  B), vec(0.5, 0.5))

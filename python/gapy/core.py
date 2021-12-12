@@ -149,16 +149,8 @@ def multivector_type(name: str, basis_idx: np.ndarray, basis_sign: np.ndarray, g
         def reverse(self) -> "Multivector":
             return Multivector(*(basis_sign[0, :] * self.coefficients))
 
-        @staticmethod
-        def rotor(angle_radians: float, plane: "Multivector") -> "Multivector":
-            assert plane.grade == 2, f"Expected bivector! [plane={plane!r}, grade={plane.grade!r}]"
-            angle_radians /= 2
-            plane = np.sin(angle_radians) * plane.unit
-            plane.coefficients[0] = np.cos(angle_radians) # TODO: Better way of constructing scalar, pseudoscalar, etc multivectors
-            return plane
-
         def rotate_rad(self, angle: float, plane: "Multivector") -> "Multivector":
-            Rl = Multivector.rotor(angle, plane)
+            Rl = Multivector.make.rotor(angle, plane)
             Rr = Rl.reverse
             return Rl*self*Rr
 
@@ -177,10 +169,21 @@ def multivector_type(name: str, basis_idx: np.ndarray, basis_sign: np.ndarray, g
             @staticmethod
             def vector(*args: float) -> "Multivector":
                 assert len(args) == ndims
-                return Multivector(0, *args, *(len(grade_mask) - ndims - 1))
+                return Multivector(0, *args, *[0]*(len(grade_mask) - ndims - 1))
 
             @staticmethod
             def pseudoscalar(a: float) -> "Multivector":
                 return Multivector(*([0] * (len(grade_mask)-1)), a)
+
+            @staticmethod
+            def rotor(angle_radians: float, plane: "Multivector") -> "Multivector":
+                """
+                Returns the (left) Rotor for rotation by the specified angle in the specified plane.
+                """
+                assert plane.grade == 2, f"Expected bivector! [plane={plane!r}, grade={plane.grade!r}]"
+                angle_radians /= 2
+                Rl = Multivector.make.scalar(np.cos(angle_radians)) - np.sin(angle_radians) * plane.unit
+                return Rl
+
 
     return Multivector
