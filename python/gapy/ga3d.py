@@ -3,7 +3,11 @@ import matplotlib as plt
 
 from gapy.core import multivector_type
 
-__all__ = ("Multivector3D", "vec", "bivec")
+__all__ = ("Multivector3D", "vec", "bivec", 
+            "ex", "ey", "ez",
+            "Bxy", "Byz", "Bzx",
+            "I",
+            )
 
 
 # basis = {1, e1, e2, e3, e1e2, e3e1, e2e3, e1e2e3}
@@ -48,3 +52,4 @@ ez = vec(0, 0, 1)
 Bxy = bivec(1, 0, 0)
 Byz = bivec(0, 1, 0)
 Bzx = bivec(0, 0, 1)
+I = Multivector3D.make.pseudoscalar(1)

@@ -1,13 +1,13 @@
 # Geometric Algebra - GAPy
 
-Very simple (read unoptimized, minimally tested) repo containing some code to form multivectors and take their geometric product.
+Very simple (read; unoptimized & minimally tested) repo containing some code to form multivectors and take their geometric product.
 Written as a tool for self-learning [geometric algebra](https://en.wikipedia.org/wiki/Geometric_algebra).
 
 Examples:
 
 ```python
 import numpy as np
-from gapy.ga2d import *
+from gapy.ga3d import *
 
 # construct some basis vectors
 ex = Multivector3D.make.vector(1, 0, 0)

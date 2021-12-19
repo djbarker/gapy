@@ -81,10 +81,10 @@ def multivector_type(name: str, basis_idx: np.ndarray, basis_sign: np.ndarray, g
             else:
                 return Multivector(self.coefficients * other)
         
-        def __div__(self, other: "Multivector") -> "Multivector":
+        def __truediv__(self, other: "Multivector") -> "Multivector":
             if isinstance(other, Multivector):
-                mag = np.abs((self * self).coefficients[0])  # TODO: This is correct for pure vectors & bivectors but what about mixed?
-                return Multivector(self.coefficients / mag)
+                mag2 = np.sum((other * other).coefficients[0])  # TODO: This is correct for pure vectors & bivectors but what about mixed?
+                return self * (other / mag2)
             else:
                 return Multivector(self.coefficients / other)
 
@@ -98,7 +98,22 @@ def multivector_type(name: str, basis_idx: np.ndarray, basis_sign: np.ndarray, g
             return Multivector(-self.coefficients)
 
         def __rmul__(self, other: float) -> "Multivector":
-            return self.__mul__(other)
+            return Multivector.make.scalar(other) * self
+
+        def __radd__(self, other: float) -> "Multivector":
+            return Multivector.make.scalar(other) + self
+
+        def __rsub__(self, other: float) -> "Multivector":
+            return Multivector.make.scalar(other) - self
+
+        def exp(self) -> "Multivector":
+            if self.grade == 0:
+                return Multivector.make.scalar(np.exp(self.scalar))
+            elif self.grade == 2:
+                theta = np.sqrt(np.sum(self.coefficients**2))
+                return np.cos(theta) + np.sin(theta)*self.unit
+            else:
+                raise ValueError(f"Only know how to exponentiate scalars and bivectors! [${B!r}]")
 
         @property
         def scalar(self) -> float:
@@ -107,6 +122,14 @@ def multivector_type(name: str, basis_idx: np.ndarray, basis_sign: np.ndarray, g
             :return: Unlike {name}.project, this returns a float, not a {name} object.
             """
             return self.coefficients[0]
+
+        @property
+        def vector(self) -> np.ndarray:
+            f"""
+            Convenience function for projecting onto the vector grade.
+            :return: Unlike {name}.project, this returns a raw numpy array, not a {name} object.
+            """
+            return self.coefficients[grade_mask == 1]
 
         @property
         def pseudoscalar(self) -> float:
@@ -131,7 +154,7 @@ def multivector_type(name: str, basis_idx: np.ndarray, basis_sign: np.ndarray, g
         def grade(self) -> float:
             grades = [self.is_grade(i) for i in range(np.max(grade_mask)+1)]
             if not any(grades):
-                return np.nan  # TODO: What grade is "zero"?
+                return 0  # I _think_ it makes sense that grade(0) = 0
             elif sum(grades) > 1:
                 return np.nan  # mixed grade
             else:
